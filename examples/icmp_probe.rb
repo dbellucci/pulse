@@ -1,14 +1,14 @@
 require 'lib/icmp'
 require 'lib/http'
-require 'lib/db'
+require 'lib/pulsedb'
 
-include DB
+include PulseDB
 
-DB::open('HTTP')
+PulseDB::db_open('ICMP_pulse.sqlite')
 
-HTTP.probe('http://www.google.it/', :round_trip => 0.05, :frequency => 3, :delta => 0.0005) do |probe|
+ICMP.probe('192.168.1.1', :round_trip => 0.05, :frequency => 3, :delta => 0.0005) do |probe|
 	probe.each do |rtt|
-		DB::report(rtt.to_s)
+		PulseDB::db_report(rtt.to_s)
 				
 		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
 	end
