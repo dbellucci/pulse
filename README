@@ -1,0 +1,19 @@
+Pulse is a small framework for building network prober and collect response time. Right now there 
+are two available prober: ICMP and HTTP but more are coming soon and little effort is required
+to build new one from scratch.
+
+
+Example HTTP Prober:
+
+HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 0.05, :frequency => 3, :delta => 0.0005) do |probe|
+	probe.each do |rtt|
+		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
+	end
+end
+
+count         total number of probe composing continuous probe set
+round_trip    waiting seconds between each probe in a continuous probe set
+frequency     waiting seconds between continuous probes set scheduling
+delta         ignore rtt value if differs by 'delta' seconds from previous one
+
+

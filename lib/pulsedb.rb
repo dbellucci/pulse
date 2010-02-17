@@ -3,7 +3,7 @@ require 'sqlite3'
 
 module PulseDB
 	def db_report(value)
-		@db_handle.execute("INSERT INTO sample(sample) VALUES ('#{value.to_s}')")
+		@db_handle.execute("INSERT INTO sample(sample) VALUES (#{value})")
 	end
 	
 	def db_open(name)
@@ -13,10 +13,10 @@ module PulseDB
 			db_close 
 		}
 		
-		@db_handle.execute("CREATE TABLE sample (id INTEGER PRIMARY KEY, sample TEXT, timestamp DEFAULT CURRENT_TIMESTAMP)")
+		@db_handle.execute("CREATE TABLE sample (id INTEGER PRIMARY KEY, sample FLOAT, timestamp DEFAULT CURRENT_TIMESTAMP)")
 	end
 
-	def db_close
+	def db_close	
 		@db_handle.close
 	end
 end
