@@ -12,7 +12,7 @@ class NetworkProbe
 	end
 
 	def report(time)
-		if @previous.nil? or (time - @previous).abs > @delta then
+		if @previous.nil? or (time - @previous).abs >= @delta then
 			@callback.call(time) if not @callback.nil?
 			
 			@previous = time
