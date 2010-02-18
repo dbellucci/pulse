@@ -5,7 +5,7 @@ include PulseDB
 
 PulseDB::db_open('HTTP_pulse.sqlite')
 
-HTTP.probe('http://www.google.it/', :round_trip => 0.05, :frequency => 3, :delta => 0.0005) do |probe|
+HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
 	probe.each do |rtt|
 		PulseDB::db_report(rtt)
 				

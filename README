@@ -5,7 +5,7 @@ to build new one from scratch.
 
 Example HTTP Prober:
 
-HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 0.05, :frequency => 3, :delta => 0.0005) do |probe|
+HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
 	probe.each do |rtt|
 		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
 	end
@@ -17,3 +17,40 @@ frequency     waiting seconds between continuous probes set scheduling
 delta         ignore rtt value if differs by 'delta' seconds from previous one
 
 
+Example ICMP Prober:
+
+ICMP.probe('192.168.20.1', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
+	probe.each do |rtt|
+		PulseDB::db_report(rtt.to_s)
+				
+		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
+	end
+end
+
+
+
+To collect data a comes a SQLite3 Mixin: PulseDB
+
+PulseDB::db_open('HTTP_pulse.sqlite')
+
+HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
+	probe.each do |rtt|
+		PulseDB::db_report(rtt)
+				
+		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
+	end
+end
+
+
+On previous example data will be stored on 'HTTP_pulse.sqlite'. Hit ctrl-c when you want to stop probeing.
+The consistency of the Database is guaranteed by an at_exit{ } charged to close DB.
+
+
+
+TODO:
+* Use event-machine
+* Handle multiple targets at once
+* Grep-Probe: grep a string on connect to say service alive!
+.....
+.....
+ 
