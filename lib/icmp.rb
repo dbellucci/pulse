@@ -1,12 +1,21 @@
-require 'rubygems'
+require 'lib/probe'
 require 'net/ping/icmp'
-require 'lib/probe.rb'
 
 
 class ICMP < NetworkProbe
-	def build_probe
-		Net::Ping::ICMP.new
-	end	
+	attr_reader :duration	
+	
+      	def ping(target)
+      		@duration = nil
+      		
+      		icmp = Net::Ping::ICMP.new
+      		
+      		if icmp.ping? target then
+      			@duration = icmp.duration
+      			bool = true
+      		end
+      		
+      		bool
+	end
 end
-
 

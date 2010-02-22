@@ -1,15 +1,21 @@
 Pulse is a small framework for building network prober and collect response time. Right now there 
 are two available prober: ICMP and HTTP but more are coming soon and little effort is required
-to build new one from scratch.
+to build new one from scratch. 
 
 
-Example HTTP Prober:
 
-HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
-	probe.each do |rtt|
-		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
+Example ICMP Prober:
+
+ICMP.probe('192.168.20.1', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
+	probe.on_fail do  |host|
+		puts "#{host} is not alive!"
+	end
+	
+	probe.on_pulse do |host, rtt|
+		puts "#{Time.now} rtt:  #{rtt}"
 	end
 end
+
 
 count         total number of probe composing continuous probe set
 round_trip    waiting seconds between each probe in a continuous probe set
@@ -17,19 +23,41 @@ frequency     waiting seconds between continuous probes set scheduling
 delta         ignore rtt value if differs by 'delta' seconds from previous one
 
 
-Example ICMP Prober:
 
-ICMP.probe('192.168.20.1', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
-	probe.each do |rtt|
-		PulseDB::db_report(rtt.to_s)
-				
+Example HTTP Prober:
+
+HTTP.probe('http://www.ac.me/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
+	probe.on_timeout do 
+		puts "service is not alive"
+		
+	end
+
+	probe.on_pulse do |host, rtt|
 		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
 	end
 end
 
 
+A real HTTP Prober should take care of HTTP Response as well. Let'say we want to say alive!
+if and only if strings 'works' is contained on HTTP response (body) message:
 
-To collect data a comes a SQLite3 Mixin: PulseDB
+
+HTTP.probe('http://ac.me/', :count =>5, :round_trip => 5, :frequency => 10, :delta => 0.005) do |probe|
+	probe.grep "works"
+	
+	probe.on_timeout do 
+		puts "service is not alive"
+		
+	end
+
+	probe.on_pulse do |host, rtt|
+		puts "alive!"
+	end
+end
+
+
+
+To collect round-trip time values pulse provides a SQLite3 Mixin module called PulseDB:
 
 PulseDB::db_open('HTTP_pulse.sqlite')
 
@@ -37,20 +65,17 @@ HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 
 	probe.each do |rtt|
 		PulseDB::db_report(rtt)
 				
-		puts "#{Time.now.to_s} rtt:  #{rtt.to_s}"
+		puts "#{Time.now} rtt:  #{rtt}"
 	end
 end
 
 
-On previous example data will be stored on 'HTTP_pulse.sqlite'. Hit ctrl-c when you want to stop probeing.
-The consistency of the Database is guaranteed by an at_exit{ } charged to close DB.
+Hit ctrl-c when you want to stop probeing. The consistency of the Database is guaranteed 
+by an at_exit{ } charged to close DB.
 
 
 
 TODO:
 * Use event-machine
 * Handle multiple targets at once
-* Grep-Probe: grep a string on connect to say service alive!
-.....
-.....
  

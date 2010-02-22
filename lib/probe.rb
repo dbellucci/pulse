@@ -1,5 +1,11 @@
 class NetworkProbe
-	def each(&block)
+	attr_accessor :count, :delta, :frequency, :round_trip, :timeout
+
+	def on_fail(&block)
+		@errback = block
+	end
+	
+	def on_pulse(&block)
 		@callback = block
 	end
 
@@ -7,45 +13,49 @@ class NetworkProbe
 		self.new(host, opts) do |core|
 			yield core if block_given? 
 
-			probe = core.build_probe
-			core.run(probe, host)
+			core.run(host)
 		end
 	end
 
-	def run(probe, host)
+	def run(host)
 		loop do
-			@count.times do 
-				if probe.ping? host then
-					report(probe.duration)
+			@count.times do |i|
+				if ping host then
+					report(host)
 				else
-					puts "#{target} is dead!"
-					report(0)
+					if not @errback.nil? then
+						@errback.call(host)
+					end
 				end				
 
-				Kernel.select nil, nil, nil, @round_trip
+				if i.next < @count 
+					Kernel.select nil, nil, nil, @round_trip
+				end
 			end
 			
 			Kernel.select nil, nil, nil, @frequency
 		end	
 	end
 	
-	def report(time)
-		if @previous.nil? or (time - @previous).abs >= @delta then
-			@callback.call(time) if not @callback.nil?
+	def report(host)
+		if @previous.nil? or (@duration - @previous).abs >= @delta then
+			@callback.call(host, @duration) if not @callback.nil?
 			
-			@previous = time
+			@previous = @duration
 		end
 	end
 
 	def initialize(host, opts={})
 		@previous = nil
 		@callback = nil
-
+		@errback  = nil
+		
 		@delta      = opts[:delta] ||= 0
 		@count      = opts[:count] ||= 5
-		@frequency  = opts[:frequency]  ||= 10
-		@round_trip = opts[:round_trip] ||= 0.05
 		
+		@frequency  = opts[:frequency]  ||= 5
+		@round_trip = opts[:round_trip] ||= 1
+		@timeout    = opts[:timeout]    ||= 5
 
 		yield self if block_given? 
 	end	
