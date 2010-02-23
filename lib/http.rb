@@ -1,3 +1,5 @@
+require 'net/http'
+require 'uri'
 require 'lib/probe'
 
 
@@ -9,7 +11,6 @@ class HTTP < NetworkProbe
 	end
 		
       	def ping(target)
-		uri = URI.parse(target)
 
          	response = nil
          	

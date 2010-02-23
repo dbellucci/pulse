@@ -5,7 +5,9 @@ include PulseDB
 
 PulseDB::db_open('HTTP_pulse.sqlite')
 
-HTTP.probe('http://www.google.it/', :count =>5, :round_trip => 5, :frequency => 10) do |probe|
+HTTP.probe('http://localhost/', :count =>5, :round_trip => 5, :frequency => 10) do |probe|
+	probe.grep "works"
+
 	probe.on_fail do |host|
 		puts "#{host}: ! alive"
 	end
