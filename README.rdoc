@@ -8,15 +8,15 @@ to build new one from scratch.
 
 == ICMP probe
 
-ICMP.pulse(:target => '192.168.1.1', :count =>5, :round_trip => 5, :delta => 0.5) do |probe|	
-	probe.on_fail do |echo|
-		Pulse::STDERR.report echo
-	end
+	ICMP.pulse(:target => '192.168.1.1', :count =>5, :round_trip => 5, :delta => 0.5) do |probe|	
+		probe.on_fail do |echo|
+			Pulse::STDERR.report echo
+		end
 
-	probe.on_pulse do |echo|
-		Pulse::STDOUT.report echo
+		probe.on_pulse do |echo|
+			Pulse::STDOUT.report echo
+		end
 	end
-end
 
 <b> options </b>
 * :count         stop after sending number pulse
@@ -26,53 +26,53 @@ end
 
 == HTTP probe
 
-HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
-	probe.on_fail do |echo|
-		Pulse::STDERR.report echo
-	end
+	HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
+		probe.on_fail do |echo|
+			Pulse::STDERR.report echo
+		end
 
-	probe.on_pulse do |echo|
-		Pulse::STDOUT.report echo
+		probe.on_pulse do |echo|
+			Pulse::STDOUT.report echo
+		end
 	end
-end
 
 
 A real HTTP Prober should take care of HTTP Response as well. Let'say we want to say alive!
 if and only if strings 'works' is contained on HTTP response (body) message:
 
 
-HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
-	probe.grep 'works'
+	HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
+		probe.grep 'works'
 
-	probe.on_fail do |echo|
-		Pulse::STDERR.report echo
-	end
+		probe.on_fail do |echo|
+			Pulse::STDERR.report echo
+		end
 
-	probe.on_pulse do |echo|
-		Pulse::STDOUT.report echo
+		probe.on_pulse do |echo|
+			Pulse::STDOUT.report echo
+		end
 	end
-end
 
 
 == SQLite3 as sample collector
 
 To collect round-trip time values pulse provides a SQLite3 Mixin module called Pulse::DB:
 
-Pulse::DB::open('HTTP_pulse.sqlite')
+	Pulse::DB::open('HTTP_pulse.sqlite')
 
-HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
-	probe.grep 'works'
+	HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
+		probe.grep 'works'
 
-	probe.on_fail do |echo|
-		Pulse::STDERR.report echo
-	end
+		probe.on_fail do |echo|
+			Pulse::STDERR.report echo
+		end
 
-	probe.on_pulse do |echo|
-		[Pulse::STDOUT, Pulse::DB].each do |r|
-			r.report echo
+		probe.on_pulse do |echo|
+			[Pulse::STDOUT, Pulse::DB].each do |r|
+				r.report echo
+			end
 		end
 	end
-end
 
 
 Hit ctrl-c when you want to stop probeing. The consistency of the Database is guaranteed 
