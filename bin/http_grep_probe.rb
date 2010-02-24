@@ -9,7 +9,7 @@ HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |pro
 	probe.grep 'works'
 
 	probe.on_fail do |echo|
-		Pulse::STDERR.report "#{echo} not alive"
+		Pulse::STDERR.report echo
 	end
 
 	probe.on_pulse do |echo|
