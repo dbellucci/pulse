@@ -1,0 +1,110 @@
+#!/usr/bin/env ruby 
+
+require 'pulse'
+require 'optparse'
+
+class OptsCli
+	
+	def self.parse(args)
+		options = {}
+		
+		opts = OptionParser.new do |opts|
+			opts.banner = "Usage: pulse [options]"
+			
+			opts.separator ""
+			opts.separator "Options:"
+			
+			opts.on("-t", "--target <target>", "target host") do |t|
+				options[:target] = t
+			end
+
+			opts.on("-c", "--count <number>", "stop after sending number pulse") do |c|
+				options[:count] = c.to_i			
+			end
+
+			opts.on("-r", "--roundtrip <seconds>", "waiting time for next pulse ") do |r|
+				options[:rtt] = r.to_f
+			end
+
+			opts.on("-d", "--delta <seconds>", "discard pulse if latency differ by at most delta") do |d|
+				options[:delta] = d.to_f
+			end
+			
+			opts.on("-w", "--write <filename>", "sqlite filename") do |w|
+				options[:sqlite] = w
+				Pulse::DB::open(w) 
+			end
+			
+			opts.on("-p", "--probe <name>", "one of icmp or http") do |p|
+				options[:probe] = p
+			end
+			
+			opts.separator ""
+			opts.separator "HTTP Probe Specific Options:"
+			opts.separator ""
+
+			opts.on("-g", "--grep <regexp>", "regexp to match inside each line of http(s) response") do |opt|
+				options[:grep] = opt
+			end
+			
+			opts.on_tail("-h", "--help", "Show this message") do
+                                puts opts
+                                Kernel.exit 1
+                        end
+		end 
+
+                begin
+                        opts.parse!(args)
+                        raise OptionParser::InvalidOption if options[:target].nil? or options[:probe].nil? 
+                        
+                        case options[:probe]
+                        	when /icmp/ then nil
+                        	when /http/ then nil
+                        	else raise  OptionParser::InvalidOption 
+                        end
+                        
+               	rescue OptionParser::InvalidOption
+                        raise "Invalid options, try -h for usage"
+                end
+
+                options
+ 	end
+end
+
+
+module Pulse 
+	class CLI
+		def self.run(options)
+			probe = case options[:probe]
+					when /icmp/ then Pulse::ICMP
+					when /http/ then Pulse::HTTP
+					else 
+						raise "probe #{options[:probe]} not available"
+				end
+			
+			probe.pulse(options) do |p|
+				unless options[:grep].nil? 
+					p.grep options[:grep]
+				end
+			
+				p.on_fail do |echo| 
+					Pulse::STDERR.report echo
+				end
+				
+				p.on_pulse do |echo|
+					[Pulse::STDOUT, Pulse::DB].each do |r|
+						r.report echo
+					end
+				end			
+			end				
+		end
+	end
+end
+
+
+begin
+	Pulse::CLI::run(OptsCli.parse(ARGV))
+rescue Exception => exception
+	$stderr.puts exception.message
+end
+
