@@ -83,28 +83,28 @@ by an at_exit{ } charged to close DB.
 
 As you can see there is a bin/pulse:
 
-belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -h
-Usage: pulse [options]
-Options:
-    -t, --target <target>            target host
-    -c, --count <number>             stop after sending number pulse
-    -r, --roundtrip <seconds>        waiting time for next pulse 
-    -d, --delta <seconds>            discard pulse if latency differ by at most delta
-    -w, --write <filename>           sqlite filename
-    -p, --probe <name>               one of icmp or http
-HTTP Probe Specific Options:
-    -g, --grep <regexp>              regexp to match inside each line of http(s) response
-    -h, --help                       Show this message
+	belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -h
+	Usage: pulse [options]
+	Options:
+	    -t, --target <target>            target host
+	    -c, --count <number>             stop after sending number pulse
+	    -r, --roundtrip <seconds>        waiting time for next pulse 
+	    -d, --delta <seconds>            discard pulse if latency differ by at most delta
+	    -w, --write <filename>           sqlite filename
+	    -p, --probe <name>               one of icmp or http
+	HTTP Probe Specific Options:
+	    -g, --grep <regexp>              regexp to match inside each line of http(s) response
+	    -h, --help                       Show this message
 
-which works quite well as a pulse swiss knife:
+	which works quite well as a pulse swiss knife:
 
-belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -t 'http://localhost' -c 5 -w http -p http -g 'works'
-pulse from host:http://localhost id:0 rtt:0.001801
-pulse from host:http://localhost id:1 rtt:0.003447
-pulse from host:http://localhost id:2 rtt:0.003329
-pulse from host:http://localhost id:3 rtt:0.003172
-pulse from host:http://localhost id:4 rtt:0.002782
-belch@graal:~/git/pulse# 
+	belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -t 'http://localhost' -c 5 -w http -p http -g 'works'
+	pulse from host:http://localhost id:0 rtt:0.001801
+	pulse from host:http://localhost id:1 rtt:0.003447
+	pulse from host:http://localhost id:2 rtt:0.003329
+	pulse from host:http://localhost id:3 rtt:0.003172
+	pulse from host:http://localhost id:4 rtt:0.002782
+	belch@graal:~/git/pulse# 
 
 ;)
 
