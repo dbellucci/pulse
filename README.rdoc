@@ -1,10 +1,12 @@
+= Pulse
+
 Pulse is a small framework for building network prober and collect response time. Right now there 
 are two available prober: ICMP and HTTP but more are coming soon and little effort is required
 to build new one from scratch. 
 
 
 
-Example ICMP Prober:
+== ICMP probe
 
 ICMP.pulse(:target => '192.168.1.1', :count =>5, :round_trip => 5, :delta => 0.5) do |probe|	
 	probe.on_fail do |echo|
@@ -16,13 +18,13 @@ ICMP.pulse(:target => '192.168.1.1', :count =>5, :round_trip => 5, :delta => 0.5
 	end
 end
 
+<b> options </b>
+* :count         stop after sending number pulse
+* :round_trip    waiting time for next pulse 
+* :delta         discard pulse if latency differ by at most delta
 
-:count         stop after sending number pulse
-:round_trip    waiting time for next pulse 
-:delta         discard pulse if latency differ by at most delta
 
-
-Example HTTP Prober:
+== HTTP probe
 
 HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |probe|
 	probe.on_fail do |echo|
@@ -52,6 +54,7 @@ HTTP.pulse(:target => 'http://localhost/', :count =>5, :round_trip => 5) do |pro
 end
 
 
+== SQLite3 as sample collector
 
 To collect round-trip time values pulse provides a SQLite3 Mixin module called Pulse::DB:
 
@@ -75,6 +78,8 @@ end
 Hit ctrl-c when you want to stop probeing. The consistency of the Database is guaranteed 
 by an at_exit{ } charged to close DB.
 
+
+== pulse as CLI
 
 As you can see there is a bin/pulse:
 
@@ -103,8 +108,15 @@ belch@graal:~/git/pulse#
 
 ;)
 
+== Requirements
+* net-ping
 
-TODO:
-* Use event-machine
+== TODO
+
+* put core inside a reactor with event-machine
 * Handle multiple targets at once
- 
+* TCP, SQL, X509 probe
+* Json sample collector
+* rails web interface
+
+

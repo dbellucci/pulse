@@ -1,0 +1,8 @@
+== 0.0.1 / 2010-24-02
+
+* Very alpha release
+
+	* added pulse cli
+	* huge refactoring
+	* added .rdoc files
+
