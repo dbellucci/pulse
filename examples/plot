@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'gruff'
+require 'sqlite3'
+
+
+def plot(filename, data)
+	  g = Gruff::Line.new(800)
+
+	  g.title = "Pulse" 
+	  g.data('HTTP Probe against www.google.it', data)
+	  g.write(filename)
+end
+
+def on_sample(dbname)
+	db = SQLite3::Database.new(dbname)
+	
+	db.results_as_hash = true
+	
+	
+	data   = []
+	db.execute("SELECT * FROM SAMPLE").each do |row|
+		data << row['pulse_rtt'].to_f
+	end
+	
+	yield data
+end
+
+
+
+begin
+	if (ARGV.length.eql? 2) then
+		on_sample ARGV[0] do |data|
+			plot ARGV[1], data
+		end
+	else
+		$stderr.puts "Usage: plot <db sqlite> <output png>"  unless ARGV.length.eql? 2
+	end
+rescue => e
+	$stderr.puts "%s: %s" % [e.class, e.message]
+end
+
