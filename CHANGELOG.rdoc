@@ -1,3 +1,8 @@
+== 0.0.2 / 2010-12-03
+* Still very alpha release
+
+       * added HTTPS support
+
 == 0.0.1 / 2010-24-02
 
 * Very alpha release

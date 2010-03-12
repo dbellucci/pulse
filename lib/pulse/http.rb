@@ -1,5 +1,6 @@
 require 'pulse/probe'
 require 'net/http'
+require 'net/https'
 require 'uri'
 
 module Pulse
@@ -16,11 +17,25 @@ module Pulse
 			@response = nil
 			@error    = nil
 
+
 		 	start_time = Time.now
 
 		 	begin
+		 		u = URI.parse(target)
+		 		
+		 		http = Net::HTTP.new(u.host, u.port)
+		 		
+		 		if u.scheme.eql? 'https' then 
+		 			http.use_ssl = true
+		 			http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+		 		end
+		 		
 		    		Timeout.timeout(3) {
-		    			response = Net::HTTP.get_response(URI.parse(target))
+		    			http.start() do |h|
+		    				req      = Net::HTTP::Get.new((u.path.empty?)? '/': u.path)
+		    				response = h.request(req)
+		    			end
+		    			
 		  		}
 		 	rescue Exception => err
 				false
