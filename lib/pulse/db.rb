@@ -3,6 +3,11 @@ require 'sqlite3'
 
 module Pulse
 	class DB
+		def self.fail(echo)
+			return if @db_handle.nil?
+			@db_handle.execute("INSERT INTO sample(pulse_id, pulse_rtt) VALUES (#{echo[:id]}, null)")
+		end
+	
 		def self.report(echo)
 			return if @db_handle.nil?
 			@db_handle.execute("INSERT INTO sample(pulse_id, pulse_rtt) VALUES (#{echo[:id]}, #{echo[:rtt]})")

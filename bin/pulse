@@ -35,18 +35,23 @@ class OptsCli
 				Pulse::DB::open(w) 
 			end
 			
-			opts.on("-p", "--probe <name>", "one of icmp or http") do |p|
+			opts.on("-p", "--probe <name>", "one of icmp, http, https, dns") do |p|
 				options[:probe] = p
 			end
-			
-			opts.separator ""
-			opts.separator "HTTP Probe Specific Options:"
-			opts.separator ""
 
-			opts.on("-g", "--grep <regexp>", "regexp to match inside each line of http(s) response") do |opt|
+			opts.on("-g", "--grep <pattern>", "pattern to check in response") do |opt|
 				options[:grep] = opt
 			end
 			
+			opts.separator ""
+			opts.separator "DNS Probe Specific Options:"
+			opts.separator ""
+
+			opts.on("-q", "--query <hostname>", "hostname to resolve") do |opt|
+				options[:host] = opt
+			end
+			
+
 			opts.on_tail("-h", "--help", "Show this message") do
                                 puts opts
                                 Kernel.exit 1
@@ -58,9 +63,11 @@ class OptsCli
                         raise OptionParser::InvalidOption if options[:target].nil? or options[:probe].nil? 
                         
                         case options[:probe]
-                        	when /icmp/ then nil
-                        	when /http/ then nil
-                        	else raise  OptionParser::InvalidOption 
+                        	when /icmp/  then nil
+                        	when /http/  then nil
+                        	when /https/ then nil
+                        	when /dns/   then nil
+                        	else raise   OptionParser::InvalidOption 
                         end
                         
                	rescue OptionParser::InvalidOption
@@ -76,8 +83,10 @@ module Pulse
 	class CLI
 		def self.run(options)
 			probe = case options[:probe]
-					when /icmp/ then Pulse::ICMP
-					when /http/ then Pulse::HTTP
+					when /icmp/  then Pulse::ICMP
+					when /dns/   then Pulse::DNS
+					when /https/ then Pulse::HTTP
+					when /http/  then Pulse::HTTP
 					else 
 						raise "probe #{options[:probe]} not available"
 				end
@@ -88,7 +97,9 @@ module Pulse
 				end
 			
 				p.on_fail do |echo| 
-					Pulse::STDERR.report echo
+					[Pulse::STDERR, Pulse::DB].each do |r|
+						r.fail echo
+					end
 				end
 				
 				p.on_pulse do |echo|
@@ -106,5 +117,6 @@ begin
 	Pulse::CLI::run(OptsCli.parse(ARGV))
 rescue Exception => exception
 	$stderr.puts exception.message
+	$stderr.puts exception.backtrace.join("\n")
 end
 

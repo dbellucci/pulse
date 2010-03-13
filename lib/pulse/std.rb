@@ -1,13 +1,13 @@
 module Pulse
 	class STDOUT
 		def self.report(echo)
-			$stdout.puts "pulse from host:#{echo[:host]} id:#{echo[:id]} rtt:#{echo[:rtt]}"
+			$stdout.puts "pulse from #{echo[:host]} id:#{echo[:id]} rtt:#{echo[:rtt]}"
 		end
 	end
 
 	class STDERR
-		def self.report(echo)
-			$stderr.puts "missing pulse id:#{echo[:id]} from #{echo[:host]} "
+		def self.fail(echo)
+			$stderr.puts "missing pulse from #{echo[:host]} id:#{echo[:id]}"
 		end
 	end
 end
