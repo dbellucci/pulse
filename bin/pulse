@@ -23,7 +23,7 @@ class OptsCli
 			end
 
 			opts.on("-r", "--roundtrip <seconds>", "waiting time for next pulse ") do |r|
-				options[:rtt] = r.to_f
+				options[:round_trip] = r.to_f
 			end
 
 			opts.on("-d", "--delta <seconds>", "discard pulse if latency differ by at most delta") do |d|
@@ -71,7 +71,8 @@ class OptsCli
                         end
                         
                	rescue OptionParser::InvalidOption
-                        raise "Invalid options, try -h for usage"
+                        $stderr.puts "Invalid options, try -h for usage"
+                        Kernel.exit -1
                 end
 
                 options
@@ -116,7 +117,10 @@ end
 begin
 	Pulse::CLI::run(OptsCli.parse(ARGV))
 rescue Exception => exception
-	$stderr.puts exception.message
-	$stderr.puts exception.backtrace.join("\n")
+	unless exception.class.eql? SystemExit then
+			$stderr.puts exception.class 
+			$stderr.puts exception.message
+			$stderr.puts exception.backtrace.join("\n")
+	end
 end
 
