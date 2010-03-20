@@ -23,7 +23,7 @@ class OptsCli
 			end
 
 			opts.on("-r", "--roundtrip <seconds>", "waiting time for next pulse ") do |r|
-				options[:rtt] = r.to_f
+				options[:round_trip] = r.to_f
 			end
 
 			opts.on("-d", "--delta <seconds>", "discard pulse if latency differ by at most delta") do |d|
