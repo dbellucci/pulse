@@ -54,6 +54,22 @@ if and only if strings 'works' is contained on HTTP response (body) message:
 	end
 
 
+== DNS probe
+
+	DNS.pulse(:target => '8.8.8.8', :host => 'www.google.it', :count =>5, :round_trip => 1) do |probe|
+		probe.on_fail do |echo|
+		        Pulse::STDERR.report echo
+		end
+
+		probe.on_pulse do |echo|
+		        [Pulse::STDOUT, Pulse::DB].each do |r|
+		                r.report echo
+		        end
+		end
+	end
+
+
+ 
 == SQLite3 as sample collector
 
 To collect round-trip time values pulse provides a SQLite3 Mixin module called Pulse::DB:
@@ -84,6 +100,7 @@ by an at_exit{ } charged to close DB.
 As you can see there is a bin/pulse:
 
 	belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -h
+
 	Usage: pulse [options]
 	Options:
 	    -t, --target <target>            target host
@@ -91,12 +108,14 @@ As you can see there is a bin/pulse:
 	    -r, --roundtrip <seconds>        waiting time for next pulse 
 	    -d, --delta <seconds>            discard pulse if latency differ by at most delta
 	    -w, --write <filename>           sqlite filename
-	    -p, --probe <name>               one of icmp or http
-	HTTP Probe Specific Options:
-	    -g, --grep <regexp>              regexp to match inside each line of http(s) response
+	    -p, --probe <name>               one of icmp, http, https, dns
+	    -g, --grep <pattern>             pattern to check in response
+	DNS Probe Specific Options:
+	    -q, --query <hostname>           hostname to resolve
 	    -h, --help                       Show this message
 
-	which works quite well as a pulse swiss knife:
+
+	which works quite well as a swiss knife:
 
 	belch@graal:~/git/pulse# RUBYLIB=./lib bin/pulse -t 'http://localhost' -c 5 -w http -p http -g 'works'
 	pulse from host:http://localhost id:0 rtt:0.001801
@@ -109,14 +128,13 @@ As you can see there is a bin/pulse:
 ;)
 
 == Requirements
-* net-ping
+* net-ping 
 
 == TODO
 
-* put core inside a reactor with event-machine
 * Handle multiple targets at once
+* put core inside a reactor with event-machine
 * TCP, SQL, X509 probe
 * Json sample collector
-* rails web interface
-
+* Rails web interface
 

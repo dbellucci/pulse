@@ -71,7 +71,8 @@ class OptsCli
                         end
                         
                	rescue OptionParser::InvalidOption
-                        raise "Invalid options, try -h for usage"
+                        $stderr.puts "Invalid options, try -h for usage"
+                        Kernel.exit -1
                 end
 
                 options
@@ -116,7 +117,10 @@ end
 begin
 	Pulse::CLI::run(OptsCli.parse(ARGV))
 rescue Exception => exception
-	$stderr.puts exception.message
-	$stderr.puts exception.backtrace.join("\n")
+	unless exception.class.eql? SystemExit then
+			$stderr.puts exception.class 
+			$stderr.puts exception.message
+			$stderr.puts exception.backtrace.join("\n")
+	end
 end
 

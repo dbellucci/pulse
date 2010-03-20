@@ -1,7 +1,12 @@
-require 'pulse/probe'
-require 'pulse/db'
-require 'pulse/http'
-require 'pulse/icmp'
-require 'pulse/dns'
-require 'pulse/probe'
-require 'pulse/std'
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/probe')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/db')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/http')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/icmp')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/dns')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/probe')
+require File.expand_path(File.dirname(__FILE__) +  '/pulse/std')
+
+module Pulse
+  VERSION = '0.0.1'
+end
+
